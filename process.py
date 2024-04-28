@@ -246,11 +246,22 @@ def act_params(shop_id: str, item_id: str):
 def send_msg(title, content):
     if config.PUSH_TOKEN is None:
         return
-    url = 'http://www.pushplus.plus/send'
-    r = requests.get(url, params={'token': config.PUSH_TOKEN,
-                                  'title': title,
-                                  'content': content})
+    url = 'https://oapi.dingtalk.com/robot/send?access_token='+config.PUSH_TOKEN
+    headers = {'Content-Type': 'application/json;charset=utf-8'}
+    data = {
+        "msgtype": "text",
+        "text": {
+            "title": title,
+            "content": content
+        }
+    }
+    r = requests.post(url, data=json.dumps(data), headers=headers)
+    if r.status_code != 200:
+        print("Failed to send message to DingTalk. Error code:", r.status_code)
+    else:
+        print("Message sent successfully!")
     logging.info(f'通知推送结果：{r.status_code, r.text}')
+
 
 
 # 核心代码，执行预约
